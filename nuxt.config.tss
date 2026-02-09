@@ -1,0 +1,37 @@
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+    compatibilityDate: '2024-04-03',
+    devtools: {
+        enabled: true
+    },
+    components: true,
+    ssr: false,
+    runtimeConfig: {
+        public: {
+            // apiBaseUrl: 'http://127.0.0.1:1371/'
+            apiBaseUrl: 'https://onsho24.ir/api/'
+           // apiBaseUrl: 'http://62.60.198.169:8000/'
+        },
+    },
+    vite: {
+        server: {
+            allowedHosts: ['localhost', '127.0.0.1', 'www.onsho24.ir'],
+            // allowedHosts: 'all', // dev only
+        }
+    },
+    css: [
+        'assets/css/style.css',
+        'bootstrap/dist/css/bootstrap.min.css',
+        '@fortawesome/fontawesome-free/css/all.min.css',
+        '@/assets/css/hafez-icofont.css',
+        'swiper/css',
+        '@/assets/scss/_variable.scss'
+    ],
+    plugins: [
+        '~/plugins/axios.ts',
+        '~/plugins/load.ts',
+        '~/plugins/permission.ts',
+        '~/plugins/convertNumbers.client.ts',
+    ],
+    modules: ['@pinia/nuxt']
+})

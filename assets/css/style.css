@@ -1,0 +1,262 @@
+/* Vazirmatn Font Face - از فولدر webfonts */
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 100;
+  src: url('/webfonts/Vazirmatn-Thin.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 200;
+  src: url('/webfonts/Vazirmatn-ExtraLight.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/webfonts/Vazirmatn-Light.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/webfonts/Vazirmatn-Medium.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/webfonts/Vazirmatn-SemiBold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/webfonts/Vazirmatn-Bold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 800;
+  src: url('/webfonts/Vazirmatn-ExtraBold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 900;
+  src: url('/webfonts/Vazirmatn-Black.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* Global Font Family and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  direction: rtl;
+  font-family: 'Vazirmatn', sans-serif !important;
+}
+
+body, p, h1, h2, h3, h4, h5, h6, small, span, div, a, button, input, textarea, select, label {
+  font-family: 'Vazirmatn', sans-serif !important;
+}
+a {
+  text-decoration: none !important;
+}
+.btn-danger {
+  background-color: #FF8C14 !important;
+}
+.text-danger1 {
+  color: #FF8C14 ;
+}
+.bg-danger {
+  background-color: #FF8C14 !important;
+}
+.bg-dark {
+  background-color: #2e3340 !important;
+}
+.bg-dark-subtle {
+  background-color: rgba(43, 45, 66, 1) !important;
+}
+
+.card {
+  transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+.cursor-pointer {
+  cursor: pointer !important;
+}
+.accordion-button {
+  display: flex;
+  justify-content: space-between; /* متن و آیکون را به دو طرف دکمه می‌برد */
+  align-items: center; /* تنظیم عمودی آیکون و متن */
+}
+
+
+
+.accordion-item {
+  width: 100%; /* تنظیم عرض به 100% */
+}
+
+.accordion-button {
+  display: flex; /*استفادهازفلکسباکسبرایتنظیمآیکونومتن*/
+  justify-content: space-between; /*ایجادفاصلهمناسببینآیکونومتن*/
+  transition: all 0.2s ease-in-out !important;
+  width: 100% !important;
+  -webkit-transition: all 0.2s ease-in-out !important;
+  -moz-transition: all 0.2s ease-in-out !important;
+  -ms-transition: all 0.2s ease-in-out !important;
+  -o-transition: all 0.2s ease-in-out !important;
+  box-shadow: none !important;
+}
+
+.accordion-button::after {
+  margin-left: 0.5rem !important; /* فاصله بین متن و آیکون */
+  content: "" !important; /* اطمینان از وجود آیکون */
+  display: none;
+}
+
+.nav-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scroll-snap-type: x mandatory !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+.nav-tabs::-webkit-scrollbar {
+  display: none !important; /* مخفی کردن اسکرول‌بار */
+}
+
+.nav-link {
+  font-weight: bold !important;
+  font-size: 18px !important;
+  color: #6c757d !important;
+  border: none !important;
+  transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  -webkit-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  -moz-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  -ms-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  -o-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+.nav-link.active {
+  color: #FF8C14 !important;
+  border-bottom: 3px solid #FF8C14 !important;
+  background-color: transparent !important;
+}
+
+.nav-link:hover {
+  color: #FF8C14 !important;
+}
+
+.nav-custom {
+   display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+.nav-custom::-webkit-scrollbar {
+  display: none;
+}
+.nav-custom a{
+  font-size: 16px;
+  font-weight: bold;
+  color: #6c757d;
+  border: none;
+  margin: 15px 20px;
+  transition: color 0.3s, border-bottom 0.3s;
+  white-space: nowrap; /* جلوگیری از شکستن متن */
+}
+
+.nav-custom a:hover {
+  color: #FF8C14;
+}
+
+.nav-custom a.active {
+  color: #FF8C14;
+  font-weight: bold;
+  border-bottom: 3px solid #FF8C14;
+}
+
+.nav-tabs {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .accordion-body {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .accordion-item {
+    margin-bottom: 20px;
+  }
+  .col-md-6 {
+    text-align: center !important;
+  }
+  .col-md-7, .col-md-5 {
+    text-align: center !important;
+  }
+  .row > .col-sm-6 {
+    margin-bottom: 20px;
+  }
+}
+@media (max-width: 576px) {
+  h1, h2, h4 {
+    font-size: 1.2rem !important;
+  }
+  .btn {
+    font-size: 0.8rem;
+    padding: 10px 15px;
+  }
+  .accordion-button {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  .accordion-body {
+    font-size: 13px;
+  }
+  .card-body p {
+    font-size: 14px;
+  }
+}
+
+/* Change no.gif color from red to orange */
+img[src="/images/no.gif"],
+img[src*="no.gif"] {
+  filter: hue-rotate(15deg) saturate(1.15) brightness(1.05);
+  /* This shifts red (#FF0000) towards orange (#FF8C14) */
+}

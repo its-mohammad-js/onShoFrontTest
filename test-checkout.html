@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Checkout</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <h1>Test Checkout Functionality</h1>
+    
+    <div class="test-section">
+        <h3>1. Add Course to Cart</h3>
+        <button onclick="addToCart()">Add Course to Cart</button>
+        <div id="cart-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Check Cart Contents</h3>
+        <button onclick="checkCart()">Check Cart</button>
+        <div id="check-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Test Payment API</h3>
+        <button onclick="testPayment()">Test Payment</button>
+        <div id="payment-result" class="result"></div>
+    </div>
+
+    <script>
+        // Add course to cart
+        function addToCart() {
+            const courseItem = {
+                id: 1,
+                title: "Complete Python Bootcamp",
+                price: 1200000,
+                provider: "Test Provider",
+                image: "/images/test.jpg"
+            };
+            
+            // Store in localStorage (simulating cart cookie)
+            localStorage.setItem('cart', JSON.stringify([courseItem]));
+            document.getElementById('cart-result').innerHTML = '✅ Course added to cart: ' + courseItem.title;
+        }
+        
+        // Check cart contents
+        function checkCart() {
+            const cart = localStorage.getItem('cart');
+            if (cart) {
+                const items = JSON.parse(cart);
+                document.getElementById('check-result').innerHTML = 
+                    '📦 Cart contains ' + items.length + ' items: ' + 
+                    items.map(item => item.title).join(', ');
+            } else {
+                document.getElementById('check-result').innerHTML = '❌ Cart is empty';
+            }
+        }
+        
+        // Test payment API
+        async function testPayment() {
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4NTMyMjg0LCJpYXQiOjE3NTg0NDU4ODQsImp0aSI6IjYxMTFlNGMxZWEwODQ0YTRhYTU5MmZiNTUxMWRhZGJkIiwidXNlcl9pZCI6MX0.7Kacx9ppmbRtXIvyStTs2jIoOsQjpqoWyV88Ffn1S54';
+            
+            try {
+                const response = await fetch('http://localhost:8000/payment/ordersub', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        courses: [{ course_id: 1, quantity: 1 }]
+                    })
+                });
+                
+                const data = await response.json();
+                document.getElementById('payment-result').innerHTML = 
+                    '✅ Payment API Response: ' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('payment-result').innerHTML = 
+                    '❌ Payment API Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

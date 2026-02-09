@@ -1,0 +1,37 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --no-devtools",
+    "start": "nuxt start --port 3000 --host 0.0.0.0",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "download-standards": "node scripts/download-standards.js --source ./standards.html --baseUrl https://example.com --outDir ./downloads"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@heroicons/vue": "^2.2.0",
+    "@pinia/nuxt": "^0.9.0",
+    "axios": "^1.7.9",
+    "bootstrap": "^5.3.3",
+    "cheerio": "^1.0.0",
+    "gsap": "^3.12.7",
+    "moment-jalaali": "^0.10.4",
+    "nuxt": "^3.13.0",
+    "pinia": "^2.3.0",
+    "sweetalert2": "^11.15.3",
+    "swiper": "^11.2.0",
+    "vue": "latest",
+    "vue-router": "latest",
+    "vue3-persian-datetime-picker": "^1.2.2"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.83.0"
+  },
+  "optionalDependencies": {
+    "sass-embedded-linux-x64": "^1.93.3"
+  }
+}

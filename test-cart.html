@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cart</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <h1>Test Cart Functionality</h1>
+    
+    <div class="test-section">
+        <h3>1. Add Course to Cart (Cookie)</h3>
+        <button onclick="addToCartCookie()">Add Course to Cart Cookie</button>
+        <div id="cart-cookie-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Check Cart Cookie</h3>
+        <button onclick="checkCartCookie()">Check Cart Cookie</button>
+        <div id="check-cookie-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Navigate to Checkout</h3>
+        <button onclick="goToCheckout()">Go to Checkout</button>
+        <div id="checkout-result" class="result"></div>
+    </div>
+
+    <script>
+        // Add course to cart cookie
+        function addToCartCookie() {
+            const courseItem = {
+                id: 1,
+                title: "Complete Python Bootcamp",
+                price: 1200000,
+                provider: "Test Provider",
+                image: "/images/test.jpg"
+            };
+            
+            // Set cookie (simulating Nuxt cookie behavior)
+            document.cookie = `cart=${JSON.stringify([courseItem])}; path=/; max-age=${60 * 60 * 24 * 7}`;
+            document.getElementById('cart-cookie-result').innerHTML = '✅ Course added to cart cookie: ' + courseItem.title;
+        }
+        
+        // Check cart cookie
+        function checkCartCookie() {
+            const cookies = document.cookie.split(';');
+            const cartCookie = cookies.find(cookie => cookie.trim().startsWith('cart='));
+            
+            if (cartCookie) {
+                const cartData = cartCookie.split('=')[1];
+                const items = JSON.parse(decodeURIComponent(cartData));
+                document.getElementById('check-cookie-result').innerHTML = 
+                    '📦 Cart cookie contains ' + items.length + ' items: ' + 
+                    items.map(item => item.title).join(', ');
+            } else {
+                document.getElementById('check-cookie-result').innerHTML = '❌ Cart cookie not found';
+            }
+        }
+        
+        // Go to checkout
+        function goToCheckout() {
+            window.open('http://localhost:3000/checkout', '_blank');
+            document.getElementById('checkout-result').innerHTML = '✅ Opened checkout page in new tab';
+        }
+    </script>
+</body>
+</html>
