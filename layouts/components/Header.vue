@@ -262,17 +262,17 @@
         </div>
 
         <!-- Cart -->
-        <div class="cart-icon-container position-relative">
+        <!-- <div class="cart-icon-container position-relative">
           <nuxt-link to="/checkout" class="cart-button">
             <i class="fa-solid fa-shopping-cart" style="font-size: 18px"></i>
             <span v-if="cartStore.cartItems.length" class="cart-badge">
               {{ cartStore.cartItems.length }}
             </span>
           </nuxt-link>
-        </div>
+        </div> -->
 
         <div class="cart-icon-container position-relative">
-          <nuxt-link to="/card" class="btn btn-danger">
+          <nuxt-link to="/checkout" class="btn btn-danger">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -554,7 +554,9 @@ const handleClickOutside = (e) => {
     e.target.closest(".category-btn") ||
     e.target.closest(".category-btn-mobile");
 
-  if (!clickedInsideCategory) {
+  const clickedInsideLevel2 = e.target.closest(".level-2");
+
+  if (!clickedInsideCategory && !clickedInsideLevel2) {
     isCategoriesOpen.value = false;
   }
 

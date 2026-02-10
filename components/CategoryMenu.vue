@@ -39,7 +39,10 @@
       </div>
 
       <!-- Level 2: Subcategories -->
-      <div v-if="selectedCategory" class="panel level-2">
+      <div
+        v-if="selectedCategory && !selectedSubCategory"
+        class="panel level-2"
+      >
         <div class="panel-header" @click="clearLevel(1)">
           <i class="bi bi-arrow-right"></i>
           <span>{{ selectedCategory.title }}</span>
@@ -94,186 +97,189 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-const emit = defineEmits(['navigate'])
+import { ref, onMounted, computed, watch } from "vue";
+import { useRouter } from "vue-router";
+const emit = defineEmits(["navigate"]);
 
-const { $api } = useNuxtApp()
-const router = useRouter()
-const { getMediaUrl } = useMediaUrl()
+const { $api } = useNuxtApp();
+const router = useRouter();
+const { getMediaUrl } = useMediaUrl();
 
-const categories = ref([])
-const selectedCategory = ref(null)
-const selectedSubCategory = ref(null)
-const loading = ref(true)
+const categories = ref([]);
+const selectedCategory = ref(null);
+const selectedSubCategory = ref(null);
+const loading = ref(true);
 
 // Pagination states for mobile
-const itemsPerPage = 5
-const level1DisplayCount = ref(itemsPerPage)
-const level2DisplayCount = ref(itemsPerPage)
-const level3DisplayCount = ref(itemsPerPage)
+const itemsPerPage = 5;
+const level1DisplayCount = ref(itemsPerPage);
+const level2DisplayCount = ref(itemsPerPage);
+const level3DisplayCount = ref(itemsPerPage);
 
 // Check if mobile
 const isMobile = computed(() => {
-  if (typeof window === 'undefined') return false
-  return window.innerWidth <= 576
-})
+  if (typeof window === "undefined") return false;
+  return window.innerWidth <= 576;
+});
 
 // تبدیل آدرس‌های logo به آدرس با /api
 const categoriesWithMediaUrl = computed(() => {
-  return categories.value.map(cat => ({
+  return categories.value.map((cat) => ({
     ...cat,
     logo: getMediaUrl(cat.logo),
-    children: (cat.children || []).map(sub => ({
+    children: (cat.children || []).map((sub) => ({
       ...sub,
       logo: getMediaUrl(sub.logo),
-      children: (sub.children || []).map(deep => ({
+      children: (sub.children || []).map((deep) => ({
         ...deep,
-        logo: getMediaUrl(deep.logo)
-      }))
-    }))
-  }))
-})
+        logo: getMediaUrl(deep.logo),
+      })),
+    })),
+  }));
+});
 
 // Displayed items for each level (with pagination on mobile)
 const displayedLevel1Items = computed(() => {
-  const items = categoriesWithMediaUrl.value
+  const items = categoriesWithMediaUrl.value;
   if (isMobile.value) {
-    return items.slice(0, level1DisplayCount.value)
+    return items.slice(0, level1DisplayCount.value);
   }
-  return items
-})
+  return items;
+});
 
 const displayedLevel2Items = computed(() => {
-  if (!selectedCategory.value) return []
-  const items = selectedCategory.value.children || []
+  if (!selectedCategory.value) return [];
+  const items = selectedCategory.value.children || [];
   if (isMobile.value) {
-    return items.slice(0, level2DisplayCount.value)
+    return items.slice(0, level2DisplayCount.value);
   }
-  return items
-})
+  return items;
+});
 
 const displayedLevel3Items = computed(() => {
-  if (!selectedSubCategory.value) return []
-  const items = selectedSubCategory.value.children || []
+  if (!selectedSubCategory.value) return [];
+  const items = selectedSubCategory.value.children || [];
   if (isMobile.value) {
-    return items.slice(0, level3DisplayCount.value)
+    return items.slice(0, level3DisplayCount.value);
   }
-  return items
-})
+  return items;
+});
 
 // Check if there are more items to load
 const hasMoreLevel1 = computed(() => {
-  if (!isMobile.value) return false
-  return categoriesWithMediaUrl.value.length > level1DisplayCount.value
-})
+  if (!isMobile.value) return false;
+  return categoriesWithMediaUrl.value.length > level1DisplayCount.value;
+});
 
 const hasMoreLevel2 = computed(() => {
-  if (!isMobile.value || !selectedCategory.value) return false
+  if (!isMobile.value || !selectedCategory.value) return false;
   // Don't show "Load More" button for level 2 when level 3 is open
-  if (selectedSubCategory.value) return false
-  const total = (selectedCategory.value.children || []).length
-  return total > level2DisplayCount.value
-})
+  if (selectedSubCategory.value) return false;
+  const total = (selectedCategory.value.children || []).length;
+  return total > level2DisplayCount.value;
+});
 
 const hasMoreLevel3 = computed(() => {
-  if (!isMobile.value || !selectedSubCategory.value) return false
-  const total = (selectedSubCategory.value.children || []).length
-  return total > level3DisplayCount.value
-})
+  if (!isMobile.value || !selectedSubCategory.value) return false;
+  const total = (selectedSubCategory.value.children || []).length;
+  return total > level3DisplayCount.value;
+});
 
 // Load more functions
 const loadMoreLevel1 = () => {
-  level1DisplayCount.value += itemsPerPage
-}
+  level1DisplayCount.value += itemsPerPage;
+};
 
 const loadMoreLevel2 = () => {
-  level2DisplayCount.value += itemsPerPage
-}
+  level2DisplayCount.value += itemsPerPage;
+};
 
 const loadMoreLevel3 = () => {
-  level3DisplayCount.value += itemsPerPage
-}
+  level3DisplayCount.value += itemsPerPage;
+};
 
 function normalize(items) {
-  return (items || []).map(item => ({
+  return (items || []).map((item) => ({
     ...item,
     children: Array.isArray(item.children)
-      ? item.children.map(ch => ({
+      ? item.children.map((ch) => ({
           ...ch,
-          children: Array.isArray(ch.children) ? ch.children : []
+          children: Array.isArray(ch.children) ? ch.children : [],
         }))
-      : []
-  }))
+      : [],
+  }));
 }
 
 onMounted(async () => {
   try {
-    loading.value = true
-    const res = await $api.post('/course/category/list', {})
-    const data = res?.data?.data ?? res?.data ?? []
-    categories.value = normalize(data)
+    loading.value = true;
+    const res = await $api.post("/course/category/list", {});
+    const data = res?.data?.data ?? res?.data ?? [];
+    categories.value = normalize(data);
   } catch (err) {
-    console.error('خطا:', err)
+    console.error("خطا:", err);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
+});
 
 const selectCategory = (cat) => {
-  selectedSubCategory.value = null
+  selectedSubCategory.value = null;
   // Reset level 2 pagination when selecting new category
   if (isMobile.value) {
-    level2DisplayCount.value = itemsPerPage
+    level2DisplayCount.value = itemsPerPage;
   }
   // پیدا کردن category اصلی از categories (بدون media url)
-  const originalCat = categories.value.find(c => c.id === cat.id) || cat
+  const originalCat = categories.value.find((c) => c.id === cat.id) || cat;
   if (originalCat.children?.length) {
-    selectedCategory.value = originalCat
+    selectedCategory.value = originalCat;
   } else {
-    goToCategory(originalCat)
+    goToCategory(originalCat);
   }
-}
+};
 
 const selectSubCategory = (cat) => {
   // Reset level 3 pagination when selecting new subcategory
   if (isMobile.value) {
-    level3DisplayCount.value = itemsPerPage
+    level3DisplayCount.value = itemsPerPage;
   }
   // پیدا کردن subcategory اصلی
-  const parent = categories.value.find(c => c.id === selectedCategory.value?.id)
-  const originalSub = parent?.children?.find(c => c.id === cat.id) || cat
+  const parent = categories.value.find(
+    (c) => c.id === selectedCategory.value?.id,
+  );
+  const originalSub = parent?.children?.find((c) => c.id === cat.id) || cat;
   if (originalSub.children?.length) {
-    selectedSubCategory.value = originalSub
+    selectedSubCategory.value = originalSub;
   } else {
-    goToCategory(originalSub)
+    goToCategory(originalSub);
   }
-}
+};
 
 const goToCategory = (cat) => {
   // اطلاع به والد (هدر) که روی یک دسته‌بندی کلیک شده تا منو را ببندد
-  emit('navigate')
-  router.push({ path: '/courses', query: { category: cat.id } })
-}
+  emit("navigate");
+  router.push({ path: "/courses", query: { category: cat.id } });
+};
 
 const clearLevel = (level) => {
   if (level === 1) {
-    selectedCategory.value = null
-    selectedSubCategory.value = null
+    selectedCategory.value = null;
+    selectedSubCategory.value = null;
     // Reset pagination when going back
     if (isMobile.value) {
-      level2DisplayCount.value = itemsPerPage
-      level3DisplayCount.value = itemsPerPage
+      level2DisplayCount.value = itemsPerPage;
+      level3DisplayCount.value = itemsPerPage;
     }
   } else if (level === 2) {
-    selectedSubCategory.value = null
+    selectedSubCategory.value = null;
     // Reset level 3 pagination when going back
     if (isMobile.value) {
-      level3DisplayCount.value = itemsPerPage
+      level3DisplayCount.value = itemsPerPage;
     }
   }
-}
+};
 </script>
+
 <style scoped>
 .coursera-menu {
   direction: rtl;
@@ -287,7 +293,7 @@ const clearLevel = (level) => {
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 .panel {
@@ -303,8 +309,12 @@ const clearLevel = (level) => {
   border-left: none;
 }
 
-.level-2 { background: #f8f9fa; }
-.level-3 { background: #f1f3f5; }
+.level-2 {
+  background: #f8f9fa;
+}
+.level-3 {
+  background: #f1f3f5;
+}
 
 .panel-header {
   padding: 16px 20px;
@@ -343,7 +353,7 @@ const clearLevel = (level) => {
 }
 
 .menu-item.leaf:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .title {
@@ -405,7 +415,8 @@ const clearLevel = (level) => {
     max-height: 70vh;
     overflow-y: auto;
   }
-  .level-2, .level-3 {
+  .level-2,
+  .level-3 {
     max-height: 70vh;
   }
   .panel-header {
@@ -426,7 +437,7 @@ const clearLevel = (level) => {
     width: 18px;
     height: 18px;
   }
-  
+
   .load-more-btn {
     width: 100%;
     padding: 12px 16px;
@@ -440,15 +451,14 @@ const clearLevel = (level) => {
     transition: all 0.2s ease;
     text-align: center;
   }
-  
+
   .load-more-btn:hover {
     background: rgba(40, 167, 69, 0.05);
     border-color: #28a745;
   }
-  
+
   .load-more-btn:active {
     transform: scale(0.98);
   }
 }
-
 </style>

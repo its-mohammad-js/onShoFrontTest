@@ -46,36 +46,59 @@
 <template>
   <div class="container my-5 text-center" v-if="data.loaded">
     <!-- Title -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row text-center text-md-start">
+    <div
+      class="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row text-center text-md-start"
+    >
       <h3 class="fw-bold mb-3 mb-md-0">دوره‌های ترند</h3>
     </div>
 
     <!-- Category Tabs - Level 1 -->
     <div class="category-tabs-wrapper mb-4">
-      <div v-if="parentCategories.length === 0 && data.loaded" class="text-muted mb-2">
+      <div
+        v-if="parentCategories.length === 0 && data.loaded"
+        class="text-muted mb-2"
+      >
         دسته‌بندی‌ای یافت نشد
       </div>
-      <ul v-if="parentCategories.length > 0" class="nav justify-content-center mb-2 tabs-list tabs-level-1">
+      <ul
+        v-if="parentCategories.length > 0"
+        class="nav justify-content-center mb-2 tabs-list tabs-level-1"
+      >
+        <li
+          class="nav-item mx-2 tab-item"
+          :class="{ activeTab: !activeParentCategory }"
+          @click="selectParentCategory(null)"
+        >
+          همه
+        </li>
+
         <li
           v-for="cat in parentCategories"
           :key="cat.id"
           class="nav-item mx-2 tab-item"
-          :class="{ 
+          :class="{
             activeTab: activeParentCategory?.id === cat.id,
-            hasSubs: cat.children && cat.children.length > 0
+            hasSubs: cat.children && cat.children.length > 0,
           }"
           @click="selectParentCategory(cat)"
           @mouseenter="hoveredParentCategory = cat.id"
           @mouseleave="hoveredParentCategory = null"
         >
           {{ cat.title }}
-          <i v-if="cat.children && cat.children.length > 0" class="bi bi-chevron-down ms-1"></i>
+          <i
+            v-if="cat.children && cat.children.length > 0"
+            class="bi bi-chevron-down ms-1"
+          ></i>
         </li>
       </ul>
 
       <!-- Category Tabs - Level 2 (Subcategories) -->
-      <ul 
-        v-if="activeParentCategory && activeParentCategory.children && activeParentCategory.children.length > 0"
+      <ul
+        v-if="
+          activeParentCategory &&
+          activeParentCategory.children &&
+          activeParentCategory.children.length > 0
+        "
         class="nav justify-content-center tabs-list tabs-level-2"
       >
         <li
@@ -159,9 +182,9 @@ const data = reactive({
 // Load categories - Level 1 (Parent categories)
 const loadCategories = async () => {
   try {
-    const response = await $api.post('/course/category/list', {});
-    console.log('📂 Category API Response:', response.data);
-    
+    const response = await $api.post("/course/category/list", {});
+    console.log("📂 Category API Response:", response.data);
+
     // Handle different response structures
     let allCategories = [];
     if (response.data?.status && response.data?.data) {
@@ -171,31 +194,35 @@ const loadCategories = async () => {
     } else if (Array.isArray(response.data)) {
       allCategories = response.data;
     }
-    
-    console.log('📋 All Categories:', allCategories);
-    
+
+    console.log("📋 All Categories:", allCategories);
+
     // Get all parent categories (level 1) that have children
     // Filter categories where istrend is true OR show all parent categories with children
-    parentCategories.value = allCategories.filter(cat => {
-      // Show if it has children and (istrend is true OR we show all)
-      return cat.children && cat.children.length > 0;
-    }).map(cat => ({
-      id: cat.id,
-      title: cat.title || 'بدون عنوان',
-      children: (cat.children || []).map(child => ({
-        id: child.id,
-        title: child.title || 'بدون عنوان'
-      }))
-    }));
-    
-    console.log('🎯 Parent Categories with children:', parentCategories.value);
-    
+    parentCategories.value = allCategories
+      .filter((cat) => {
+        // Show if it has children and (istrend is true OR we show all)
+        return cat.children && cat.children.length > 0;
+      })
+      .map((cat) => ({
+        id: cat.id,
+        title: cat.title || "بدون عنوان",
+        children: (cat.children || []).map((child) => ({
+          id: child.id,
+          title: child.title || "بدون عنوان",
+        })),
+      }));
+
+    console.log("🎯 Parent Categories with children:", parentCategories.value);
+
     // If no categories with istrend found, show all parent categories with children
     if (parentCategories.value.length === 0) {
-      console.log('⚠️ No categories with istrend found, showing all parent categories');
+      console.log(
+        "⚠️ No categories with istrend found, showing all parent categories",
+      );
     }
   } catch (error) {
-    console.error('❌ Error loading categories:', error);
+    console.error("❌ Error loading categories:", error);
     parentCategories.value = [];
   }
 };
@@ -206,7 +233,11 @@ const selectParentCategory = async (cat) => {
   activeParentCategory.value = cat;
   activeSubCategory.value = null; // Reset subcategory when parent changes
   // Load trending courses for this parent category (includes all subcategories recursively)
-  await loadCourses(cat.id);
+  if (!cat) {
+    await loadCourses();
+  } else {
+    await loadCourses(cat.id);
+  }
 };
 
 const selectSubCategory = async (subCat) => {
@@ -220,22 +251,22 @@ const loadCourses = async (categoryId = null) => {
   try {
     const requestData = {
       page: 1,
-      page_size: 50
+      page_size: 50,
     };
-    
+
     if (categoryId) {
       requestData.category_id = categoryId;
     }
-    
-    console.log('🔥 Trending Courses API Request:', requestData);
-    const response = await $api.post('/course/trending', requestData);
-    console.log('🔥 Trending Courses API Response:', response.data);
-    
+
+    console.log("🔥 Trending Courses API Request:", requestData);
+    const response = await $api.post("/course/trending", requestData);
+    console.log("🔥 Trending Courses API Response:", response.data);
+
     // Handle new API response format: { status: true, data: { results: [...] } }
     if (response.data?.status && response.data?.data?.results) {
       const coursesList = response.data.data.results;
       courses.value.data = coursesList;
-      
+
       // Store all courses if no category filter
       if (!categoryId) {
         allCourses.value = coursesList;
@@ -254,7 +285,7 @@ const loadCourses = async (categoryId = null) => {
       }
     }
   } catch (error) {
-    console.error('❌ Error loading trending courses:', error);
+    console.error("❌ Error loading trending courses:", error);
     courses.value.data = [];
     if (!categoryId) {
       allCourses.value = [];
@@ -270,10 +301,7 @@ const filterCourses = async () => {
 };
 
 onMounted(async () => {
-  await Promise.all([
-    loadCategories(),
-    loadCourses()
-  ]);
+  await Promise.all([loadCategories(), loadCourses()]);
 });
 </script>
 
@@ -282,7 +310,7 @@ onMounted(async () => {
   font-size: 12px;
 }
 .bg-danger {
-  background-color: #FF8C14 !important;
+  background-color: #ff8c14 !important;
 }
 
 .tabs-list {
@@ -299,11 +327,11 @@ onMounted(async () => {
 }
 
 .tab-item:hover {
-  color: #FF8C14;
+  color: #ff8c14;
 }
 
 .activeTab {
-  color: #FF8C14;
+  color: #ff8c14;
   font-weight: bold;
 }
 
@@ -314,7 +342,7 @@ onMounted(async () => {
   left: 0;
   width: 100%;
   height: 3px;
-  background-color: #FF8C14;
+  background-color: #ff8c14;
   border-radius: 4px;
 }
 
@@ -373,13 +401,13 @@ onMounted(async () => {
     gap: 8px;
     justify-items: center;
   }
-  
+
   .tabs-level-1 .nav-item {
     margin: 0 !important;
     width: 100%;
     text-align: center;
   }
-  
+
   .tabs-level-1 .tab-item {
     padding: 6px 8px;
     font-size: 0.75rem;
@@ -389,10 +417,9 @@ onMounted(async () => {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
+
   .tabs-level-1 .tab-item i {
     display: none;
   }
 }
-
 </style>

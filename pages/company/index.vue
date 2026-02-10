@@ -29,7 +29,7 @@
 
       <!-- Organizations Grid -->
       <section class="container py-5">
-        <div v-if="organizations.length === 0" class="text-center py-5">
+        <div v-if="allOrganizations.length === 0" class="text-center py-5">
           <i
             class="icon icon-filled-building text-muted"
             style="font-size: 4rem"
@@ -38,9 +38,9 @@
           <p class="text-muted">هنوز آموزشگاهی ثبت نشده است</p>
         </div>
 
-        <div v-if="organizations.length > 0" class="row g-4">
+        <div v-if="visibleOrganizations.length > 0" class="row g-4">
           <div
-            v-for="organization in organizations"
+            v-for="organization in visibleOrganizations"
             :key="organization.id"
             class="col-lg-4 col-md-6"
           >
@@ -93,19 +93,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 
 const { $api } = useNuxtApp();
 const { getMediaUrl } = useMediaUrl();
 
-// Reactive data
+const RENDER_BATCH_SIZE = 9;
+
 const loading = ref(true);
 const loadingMore = ref(false);
-const organizations = ref([]);
+
+const allOrganizations = ref([]);
+const visibleOrganizations = ref([]);
+
 const currentPage = ref(1);
 const hasMoreOrganizations = ref(true);
 
-// Fetch organizations
+const updateVisibleOrganizations = () => {
+  visibleOrganizations.value = allOrganizations.value.slice(
+    0,
+    visibleOrganizations.value.length + RENDER_BATCH_SIZE,
+  );
+};
+
 const fetchOrganizations = async () => {
   try {
     const response = await $api.post("/course/organization/list", {
@@ -113,35 +123,41 @@ const fetchOrganizations = async () => {
     });
 
     if (response.data.status && response.data.data.data) {
-      if (currentPage.value === 1) {
-        organizations.value = response.data.data.data;
-      } else {
-        organizations.value.push(...response.data.data.data);
-      }
-
+      allOrganizations.value.push(...response.data.data.data);
       hasMoreOrganizations.value = response.data.data.next !== null;
+
+      if (visibleOrganizations.value.length === 0) {
+        visibleOrganizations.value = allOrganizations.value.slice(
+          0,
+          RENDER_BATCH_SIZE,
+        );
+      }
     }
   } catch (error) {
-    console.error("خطا در دریافت آموزشگاه‌ها:", error);
+    console.error(error);
   } finally {
     loading.value = false;
     loadingMore.value = false;
   }
 };
 
-// Load more organizations
 const loadMoreOrganizations = async () => {
-  loadingMore.value = true;
-  currentPage.value++;
-  await fetchOrganizations();
+  if (visibleOrganizations.value.length < allOrganizations.value.length) {
+    updateVisibleOrganizations();
+    return;
+  }
+
+  if (hasMoreOrganizations.value) {
+    loadingMore.value = true;
+    currentPage.value++;
+    await fetchOrganizations();
+  }
 };
 
-// Page meta
 definePageMeta({
   layout: "default",
 });
 
-// SEO
 useHead({
   title: "آموزشگاه‌های آموزشی",
   meta: [
@@ -152,7 +168,6 @@ useHead({
   ],
 });
 
-// Lifecycle
 onMounted(() => {
   fetchOrganizations();
 });
