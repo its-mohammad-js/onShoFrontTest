@@ -1,0 +1,55 @@
+# =========================
+# Node / Nuxt (Front)
+# =========================
+Front/node_modules/
+Front/.nuxt/
+Front/dist/
+Front/.env
+Front/yarn-error.log
+Front/package-lock.json
+Front/.DS_Store
+
+# =========================
+# Python / Django (Backend)
+# =========================
+backend/__pycache__/
+backend/env/
+backend/.env
+backend/db.sqlite3
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+backend/build/
+backend/develop-eggs/
+backend/dist/
+backend/downloads/
+backend/eggs/
+backend/.eggs/
+backend/lib/
+backend/lib64/
+backend/local/
+backend/*.egg-info/
+backend.installed.cfg
+backend.pytest_cache/
+backend.coverage
+backend.tox/
+backend.cache/
+backend.coverage.*
+backendhtmlcov/
+backendnosetests.xml
+backend*.log
+backend*.pot
+backend*.mo
+backend*.pyc
+backend*.pyo
+backend*.pyd
+
+# =========================
+# System files
+# =========================
+.DS_Store
+Thumbs.db
+
+Front/.env
+backend/.env

@@ -1,0 +1,6 @@
+title,excerpt,description,price,discount,user,category,organizer,mentor,standard,image
+Python Basics,"Learn the fundamentals of Python programming.","This course covers variables, loops, and functions.",500000,10,1,2,1,3,1,course/python_basics.jpg
+Advanced Django,"Build production-grade web apps with Django.","In-depth coverage of ORM, authentication, and deployment.",800000,20,1,3,1,2,1,course/advanced_django.jpg
+Data Analysis with Pandas,"Master data manipulation using Pandas.","Includes projects on data cleaning and visualization.",600000,,2,4,2,,2,course/data_analysis.jpg
+Machine Learning Intro,"Start your ML journey.","Covers linear regression, classification, and model evaluation.",900000,15,3,5,3,1,3,course/ml_intro.jpg
+Frontend for Beginners,"Learn HTML, CSS, and JS.","A complete guide to building responsive web pages.",400000,,2,1,2,,1,course/frontend_beginners.jpg
