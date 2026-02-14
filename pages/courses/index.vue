@@ -352,11 +352,11 @@
           </div>
 
           <div class="col-lg-9">
+            <!-- categories filter -->
             <div
               class="d-flex justify-content-start flex-column rounded-3 py-3"
             >
               <!-- دکمه بازگشت اگر در صفحه children هستیم -->
-
               <a
                 v-if="data.selectedCategory"
                 class="mt-1 mb-3 cursor-pointer d-block text-danger1"

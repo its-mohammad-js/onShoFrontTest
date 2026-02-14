@@ -91,183 +91,29 @@
           </div>
         </div>
 
-        <!-- Categories (Desktop) Section -->
-        <div v-if="categories.length > 0" class="row mb-5 d-none d-md-block">
-          <div class="col-12">
-            <div class="text-center mb-4">
-              <h3 class="fw-bold">دسته‌بندی‌ها</h3>
-            </div>
-            <div class="d-flex flex-wrap justify-content-center gap-4 mb-4">
-              <div
-                v-for="category in categories"
-                :key="category.id"
-                class="category-item"
-                :class="{ active: selectedCategoryId === category.id }"
-                @click="selectCategory(category.id)"
-              >
-                <div class="category-icon">
-                  <img
-                    v-if="category.logo"
-                    :src="getMediaUrl(category.logo)"
-                    :alt="category.title"
-                    class="category-image"
-                  />
-                  <i
-                    v-else
-                    class="icon icon-filled-folder category-placeholder-icon"
-                  ></i>
-                </div>
-                <span class="category-label">{{ category.title }}</span>
-              </div>
-            </div>
-            <div v-if="selectedCategoryId" class="text-center mt-3">
-              <button
-                @click="clearCategoryFilter"
-                class="btn btn-outline-primary"
-              >
-                <i class="icon icon-filled-close me-2"></i>
-                حذف فیلتر
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Categories (Mobile) Section -->
-        <div
-          v-if="categories.length > 0"
-          class="custom-category-menu-container d-md-none"
-        >
-          <div
-            class="custom-category-item"
-            :class="selectedCategoryId === null ? 'custom-active' : ''"
-            @click="clearCategoryFilter"
-          >
-            <p class="custom-category-text">همه</p>
-          </div>
-
-          <div
-            v-for="category in categories"
-            :key="category.id"
-            class="custom-category-item"
-            :class="selectedCategoryId === category.id ? 'custom-active' : ''"
-            @click="selectCategory(category.id)"
-          >
-            <p class="custom-category-text">
-              {{ category.title }}
-            </p>
-          </div>
-        </div>
+        <CategoryMenu
+          :categories="categories"
+          :selectedCategoryId="selectedCategoryId"
+          :getMediaUrl="getMediaUrl"
+          @selectCategory="selectCategory"
+          @clearCategoryFilter="clearCategoryFilter"
+        />
 
         <!-- Organization Courses -->
-        <div class="row">
-          <div class="col-12">
-            <div class="card border-0 shadow-sm">
-              <div class="card-header bg-light border-0 py-3">
-                <h5 class="mb-0 text-dark">
-                  <i class="icon icon-filled-book text-primary me-2"></i>
-                  دوره‌های {{ organization.name }}
-                </h5>
-              </div>
-              <div class="card-body">
-                <!-- Loading Courses -->
-                <div v-if="coursesLoading" class="text-center py-4">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">در حال بارگذاری...</span>
-                  </div>
-                </div>
-
-                <!-- No Courses -->
-                <div v-else-if="courses.length === 0" class="text-center py-5">
-                  <i
-                    class="icon icon-filled-book text-muted"
-                    style="font-size: 3rem"
-                  ></i>
-                  <h5 class="text-muted mt-3">هنوز دوره‌ای منتشر نشده است</h5>
-                  <p class="text-muted">
-                    این آموزشگاه هنوز دوره‌ای منتشر نکرده است
-                  </p>
-                </div>
-
-                <!-- Courses Grid -->
-                <div v-else class="row g-4">
-                  <div
-                    v-for="course in filteredCourses"
-                    :key="course.id"
-                    class="col-lg-4 col-md-6"
-                  >
-                    <div class="card border-0 shadow-sm h-100">
-                      <div class="position-relative">
-                        <img
-                          :src="
-                            getMediaUrl(course.image) ||
-                            '/images/courses/default.jpg'
-                          "
-                          :alt="course.title"
-                          class="card-img-top"
-                          style="height: 200px; object-fit: cover"
-                        />
-                        <div
-                          class="position-absolute top-0 end-0 m-2 d-flex flex-column gap-1"
-                        >
-                          <span class="badge bg-primary">{{
-                            course.category?.title || "دسته‌بندی نشده"
-                          }}</span>
-                          <!-- type tag -->
-                          <span
-                            v-if="course.type"
-                            class="badge custom-badge"
-                            :class="getCourseTypeBadgeClass(course.type_value)"
-                          >
-                            <i
-                              :class="getCourseTypeIcon(course.type_value)"
-                              class="me-1"
-                            ></i>
-                            {{ course.type }}
-                          </span>
-                        </div>
-                      </div>
-                      <div class="card-body d-flex flex-column">
-                        <h6 class="card-title fw-bold">{{ course.title }}</h6>
-                        <p class="card-text text-muted small flex-grow-1">
-                          {{ course.description?.substring(0, 100)
-                          }}{{ course.description?.length > 100 ? "..." : "" }}
-                        </p>
-                        <div
-                          class="d-flex justify-content-between align-items-center mt-auto"
-                        >
-                          <span class="text-primary fw-bold"
-                            >{{ formatPrice(course.price) }} تومان</span
-                          >
-                          <nuxt-link
-                            :to="`/courses/${course.slug}`"
-                            class="btn btn-sm btn-outline-primary"
-                          >
-                            مشاهده
-                          </nuxt-link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Load More Button -->
-                <div v-if="hasMoreCourses" class="text-center mt-4">
-                  <button
-                    @click="loadMoreCourses"
-                    class="btn btn-outline-primary"
-                    :disabled="coursesLoading"
-                  >
-                    <span
-                      v-if="coursesLoading"
-                      class="spinner-border spinner-border-sm me-2"
-                    ></span>
-                    مشاهده بیشتر
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CourseList
+          :organization="organization"
+          :courses="courses"
+          :coursesLoading="coursesLoading"
+          :visibleCourses="visibleCourses"
+          :filteredCourses="filteredCourses"
+          :visibleCount="visibleCount"
+          :hasMoreCourses="hasMoreCourses"
+          :getMediaUrl="getMediaUrl"
+          :getCourseTypeBadgeClass="getCourseTypeBadgeClass"
+          :getCourseTypeIcon="getCourseTypeIcon"
+          :formatPrice="formatPrice"
+          :loadMoreCourses="loadMoreCourses"
+        />
       </section>
     </div>
   </div>
@@ -282,6 +128,8 @@ import {
   watch,
   nextTick,
 } from "vue";
+import CategoryMenu from "./components/CategoryMenu.vue";
+import CourseList from "./components/CourseList.vue";
 
 // Get route params
 const route = useRoute();
@@ -290,6 +138,7 @@ const { getMediaUrl } = useMediaUrl();
 const { setCompanyLogo, clearCompanyLogo } = useCompanyLogo();
 const { setCurrentOrganizationId, clearCurrentOrganizationId } =
   useCurrentOrganization();
+const categoryTree = ref([]);
 
 // Reactive data
 const loading = ref(true);
@@ -301,6 +150,8 @@ const selectedCategoryId = ref(null);
 const error = ref("");
 const currentPage = ref(1);
 const hasMoreCourses = ref(true);
+const renderStep = 6;
+const visibleCount = ref(renderStep);
 
 // Organization stats (mock data for now)
 const organizationStats = ref({
@@ -308,6 +159,30 @@ const organizationStats = ref({
   students: 0,
   teachers: 0,
   rating: 0,
+});
+
+const level2Categories = computed(() => {
+  if (!categoryTree.value.length || !allCourses.value.length) return [];
+
+  const level3Ids = new Set(
+    allCourses.value.map((course) => course.category?.id).filter(Boolean),
+  );
+
+  const result = [];
+
+  categoryTree.value.forEach((level1) => {
+    level1.children?.forEach((level2) => {
+      const hasMatchingLevel3 = level2.children?.some((level3) =>
+        level3Ids.has(level3.id),
+      );
+
+      if (hasMatchingLevel3) {
+        result.push(level2);
+      }
+    });
+  });
+
+  return result;
 });
 
 // تبدیل آدرس logo به آدرس با /api
@@ -437,7 +312,7 @@ const fetchOrganizationCourses = async () => {
             }
           }
         });
-        categories.value = Array.from(categoryMap.values());
+        categories.value = level2Categories.value;
       } else {
         allCourses.value.push(...response.data.data.data);
         courses.value.push(...response.data.data.data);
@@ -451,7 +326,7 @@ const fetchOrganizationCourses = async () => {
             }
           }
         });
-        categories.value = Array.from(categoryMap.values());
+        categories.value = level2Categories.value;
       }
 
       hasMoreCourses.value = response.data.data.next !== null;
@@ -468,14 +343,35 @@ const fetchOrganizationCourses = async () => {
   }
 };
 
+function normalize(items) {
+  return (items || []).map((item) => ({
+    ...item,
+    children: Array.isArray(item.children) ? normalize(item.children) : [],
+  }));
+}
+
+const fetchCategoryTree = async () => {
+  try {
+    const res = await $api.post("/course/category/list", {});
+    const data = res?.data?.data ?? res?.data ?? [];
+    categoryTree.value = normalize(data);
+  } catch (err) {
+    console.error("خطا در دریافت دسته‌بندی‌ها:", err);
+  }
+};
+
 // Filter courses by selected category
 const filteredCourses = computed(() => {
   if (!selectedCategoryId.value) {
     return courses.value;
   }
   return courses.value.filter(
-    (course) => course.category?.id === selectedCategoryId.value,
+    (course) => course.category?.parent === selectedCategoryId.value,
   );
+});
+
+const visibleCourses = computed(() => {
+  return filteredCourses.value.slice(0, visibleCount.value);
 });
 
 // Apply category filter to courses
@@ -485,7 +381,13 @@ const applyCategoryFilter = () => {
     return;
   }
   courses.value = allCourses.value.filter(
-    (course) => course.category?.id === selectedCategoryId.value,
+    (course) => course.category?.parent === selectedCategoryId.value,
+  );
+
+  console.log(
+    allCourses.value.filter(
+      (course) => course.category?.parent === selectedCategoryId.value,
+    ),
   );
 };
 
@@ -499,12 +401,14 @@ const selectCategory = (categoryId) => {
 
   selectedCategoryId.value = categoryId;
   applyCategoryFilter();
+  visibleCount.value = renderStep;
 };
 
 // Clear category filter
 const clearCategoryFilter = () => {
   selectedCategoryId.value = null;
   courses.value = allCourses.value;
+  visibleCount.value = renderStep;
 };
 
 // Fetch organization stats (mock implementation)
@@ -521,8 +425,15 @@ const fetchOrganizationStats = async () => {
 
 // Load more courses
 const loadMoreCourses = async () => {
-  currentPage.value++;
-  await fetchOrganizationCourses();
+  if (visibleCount.value < filteredCourses.value.length) {
+    visibleCount.value += renderStep;
+    return;
+  }
+
+  if (hasMoreCourses.value) {
+    currentPage.value++;
+    await fetchOrganizationCourses();
+  }
 };
 
 // Format date
@@ -537,6 +448,14 @@ const formatPrice = (price) => {
   if (!price) return "رایگان";
   return new Intl.NumberFormat("fa-IR").format(price);
 };
+
+watch(
+  [categoryTree, allCourses],
+  () => {
+    categories.value = level2Categories.value;
+  },
+  { immediate: true },
+);
 
 // Get course type badge class
 const getCourseTypeBadgeClass = (typeValue) => {
@@ -738,9 +657,14 @@ onBeforeUnmount(() => {
   clearCurrentOrganizationId();
 });
 
+const loadData = async () => {
+  await fetchCategoryTree();
+  await fetchOrganization();
+};
+
 // Lifecycle
 onMounted(() => {
-  fetchOrganization();
+  loadData();
 
   // If we're on a subdomain, update the URL to show only subdomain (without /company/slug)
   // This keeps the content but changes the URL in address bar
@@ -778,6 +702,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Header Section */
 .header {
   padding-top: 150px !important;
 }
@@ -790,6 +715,7 @@ onMounted(() => {
   color: #ff6b35 !important;
 }
 
+/* Button Styles */
 .btn-primary {
   background-color: #ff6b35;
   border-color: #ff6b35;
@@ -819,6 +745,7 @@ onMounted(() => {
   background-color: #ff6b35 !important;
 }
 
+/* Card Styles */
 .card {
   transition: transform 0.2s ease-in-out;
 }
@@ -827,6 +754,7 @@ onMounted(() => {
   transform: translateY(-2px);
 }
 
+/* Icon Styles */
 .icon {
   font-size: 1.1rem;
 }
@@ -908,6 +836,7 @@ onMounted(() => {
   font-weight: 700;
 }
 
+/* Media Queries for Mobile */
 @media (max-width: 768px) {
   .header {
     padding-top: 100px !important;
@@ -938,7 +867,7 @@ onMounted(() => {
   }
 }
 
-/* mobile categories menu */
+/* Mobile Categories Menu */
 .custom-category-menu-container {
   display: flex;
   overflow-x: auto;
@@ -987,19 +916,18 @@ onMounted(() => {
   max-height: 4rem;
 }
 
-/* type tag (offline or online) */
-
+/* Course Type Badge Styles */
 .custom-badge {
-  display: inline-flex; /* Ensures that the content is displayed inline */
-  align-items: center; /* Centers the content vertically */
-  padding: 0.25rem 0.5rem; /* Adjust padding */
-  border-radius: 9999px; /* Make the badge rounded */
-  width: fit-content; /* Set width to fit content */
-  max-width: 100%; /* Ensure no overflow */
-  white-space: nowrap; /* Prevent text from wrapping */
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .custom-badge i {
-  margin-right: 0.25rem; /* Adjust margin for icon */
+  margin-right: 0.25rem;
 }
 </style>

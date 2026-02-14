@@ -154,8 +154,8 @@ const courseImageUrl = computed(() => getMediaUrl(props.course?.image));
 
 // Debug: Log course data when component mounts
 onMounted(() => {
-  console.log("🎓 Course component mounted with data:", props.course);
-  console.log("📋 Course attributes:", props.course.attributes);
+  // console.log("🎓 Course component mounted with data:", props.course);
+  // console.log("📋 Course attributes:", props.course.attributes);
 
   // Test attribute finding
   const duration = props.course.attributes?.find(
@@ -168,9 +168,9 @@ onMounted(() => {
     (attribute) => attribute.slug === "language",
   );
 
-  console.log("⏱️ Duration found:", duration);
-  console.log("💼 Job positions found:", jobPositions);
-  console.log("💻 Language found:", language);
+  // console.log("⏱️ Duration found:", duration);
+  // console.log("💼 Job positions found:", jobPositions);
+  // console.log("💻 Language found:", language);
 });
 
 const toggleSaveCourse = async () => {
