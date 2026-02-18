@@ -79,7 +79,13 @@
                     class="course-type-btn"
                     :class="getCourseTypeClass(type.value)"
                   >
-                    {{ type.label }}
+                    {{
+                      type.label === "آنلاین"
+                        ? "برخط"
+                        : type.label === "پیش ثبت نام حضوری"
+                          ? "پیش ثبت نام حضوری"
+                          : "ضبط شده"
+                    }}
                   </button>
                 </div>
               </div>
@@ -141,6 +147,7 @@ const fetchOrganizations = async (page = 1, append = false) => {
       page: page,
       page_size: pageSize.value,
     });
+    console.log(response);
 
     if (response?.data?.status && response?.data?.data?.data) {
       const newOrgs = response.data.data.data;
@@ -300,11 +307,11 @@ onMounted(() => {
 }
 
 .course-type-online {
-  background: #0d6efd;
+  background: #ffc813;
 }
 
 .course-type-offline {
-  background: #6c757d;
+  background: #178d6e;
 }
 
 .course-type-inperson {

@@ -1,48 +1,3 @@
-<!-- <template>
-  <div class="container my-5 text-center" v-if="data.loaded">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row text-center text-md-start">
-      <h3 class="fw-bold mb-3 mb-md-0">دوره‌های ترند</h3>
-    </div>
-
-    <div v-if="courses.data && courses.data.length > 0">
-      <swiper
-        :style="{
-          '--swiper-navigation-color': '#FF8C14',
-          '--swiper-pagination-color': '#FF8C14',
-        }"
-        :modules="[Autoplay, Pagination]"
-        :autoplay="{ delay: 5000, disableOnInteraction: false }"
-        :pagination="{ clickable: true }"
-        :breakpoints="{
-          0: { slidesPerView: 1, spaceBetween: 10 },
-          768: { slidesPerView: 2, spaceBetween: 20 },
-          1024: { slidesPerView: 3, spaceBetween: 30 },
-          1200: { slidesPerView: 3, spaceBetween: 40 },
-        }"
-        class="mySwiper py-2 px-3"
-      >
-        <swiper-slide v-for="(course, index) in courses.data" :key="index" class="mb-5 h-100">
-          <course :course="course" class="shadow-sm" />
-        </swiper-slide>
-      </swiper>
-    </div>
-
-    <div v-else>
-      <img src="/images/no.gif" alt="No Courses Found" class="" style="width: 300px; height: auto" />
-      <p class="text-muted">دوره‌ای یافت نشد.</p>
-    </div>
-  </div>
-  <div class="container my-5 text-center" v-else>
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="spinner-grow text-danger1" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</template> -->
-
 <template>
   <div class="container my-5 text-center" v-if="data.loaded">
     <!-- Title -->
@@ -183,7 +138,7 @@ const data = reactive({
 const loadCategories = async () => {
   try {
     const response = await $api.post("/course/category/list", {});
-    console.log("📂 Category API Response:", response.data);
+    // console.log("📂 Category API Response:", response.data);
 
     // Handle different response structures
     let allCategories = [];
@@ -195,7 +150,7 @@ const loadCategories = async () => {
       allCategories = response.data;
     }
 
-    console.log("📋 All Categories:", allCategories);
+    // console.log("📋 All Categories:", allCategories);
 
     // Get all parent categories (level 1) that have children
     // Filter categories where istrend is true OR show all parent categories with children
@@ -213,7 +168,7 @@ const loadCategories = async () => {
         })),
       }));
 
-    console.log("🎯 Parent Categories with children:", parentCategories.value);
+    // console.log("🎯 Parent Categories with children:", parentCategories.value);
 
     // If no categories with istrend found, show all parent categories with children
     if (parentCategories.value.length === 0) {
@@ -246,7 +201,7 @@ const selectSubCategory = async (subCat) => {
 };
 
 // Load trending courses from new API endpoint
-const loadCourses = async (categoryId = null) => {
+const loadCourses = async (categoryId = 5539) => {
   data.loaded = false;
   try {
     const requestData = {

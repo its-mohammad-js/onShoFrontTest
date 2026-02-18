@@ -360,7 +360,7 @@
               <a
                 v-if="data.selectedCategory"
                 class="mt-1 mb-3 cursor-pointer d-block text-danger1"
-                @click="resetCategories"
+                @click="resetCategories(true)"
               >
                 <i class="icon icon-regular-angle-right"></i>
                 {{ getParentCategoryTitle() }}
@@ -368,15 +368,6 @@
 
               <!-- نمایش دسته‌بندی‌های فیلتر شده (اصلی یا children) -->
               <div v-if="filteredCategories.length > 0" class="nav-custom">
-                <!-- <a
-                  class="cursor-pointer"
-                  :class="{ active: data.selectedCategory === null }"
-                  @click="resetCategories"
-                >
-                  همه
-                </a> -->
-                <!-- <a href="javascript:;" :class="{ active: data.selectedCategory === null }" @click="resetCategories"> همه </a> -->
-
                 <a
                   v-if="!data.parentCategory"
                   class="cursor-pointer"
@@ -577,10 +568,13 @@ const data = reactive({
   loaded: false,
   selectedCategory: ref(route.query.category || null),
   parentCategory: null,
+  // main parent on level 1
+  mainParent: {},
   currentPage: 1,
   totalPages: 1,
   totalCount: 0,
-  pageSize: 12,
+  pageSize: 200,
+  allMode: false,
 });
 
 const courses = ref({ data: [] });
@@ -593,6 +587,7 @@ const filters = reactive({
   maxPrice: "",
   languages: [],
   types: [],
+  category: null,
 });
 
 // Load categories from backend
@@ -621,14 +616,26 @@ const loadOrganizers = async () => {
   }
 };
 
+const clearQueryParams = () => {
+  // پاک کردن پارامترهای کوئری از URL
+  router.replace({ path: "/courses", query: {} });
+};
+
 // Load courses from backend with filters
 const loadCourses = async (page = 1) => {
   data.loaded = false;
+
+  // console.log("🔍 Current query parameters:", route.query?.search);
+  // console.log(filters.category);
+
   try {
     // اگر سرچ داریم، از API مخصوص سرچ استفاده کن
     let response;
 
+    // REQUEST
     if (filters.search && filters.search.trim() !== "") {
+      // console.log("THIS IS THE FILTER SECTION");
+
       const searchPayload = {
         search: filters.search.trim(),
         page: page,
@@ -640,12 +647,14 @@ const loadCourses = async (page = 1) => {
         searchPayload.organization_id = currentOrganizationId.value;
       }
 
-      console.log("🔍 Loading courses from /course/search ...", searchPayload);
+      // console.log("🔍 Loading courses from /course/search ...", searchPayload);
       response = await $api.post("/course/search", searchPayload);
     } else {
+      // console.log("this is no filter section");
+
       const requestData = {
         search: null,
-        category_id: data.selectedCategory || null,
+        // category_id: data.selectedCategory || null,
         organizer_id:
           filters.organizers.length > 0 ? filters.organizers[0] : null,
         min_price: filters.minPrice || null,
@@ -655,14 +664,31 @@ const loadCourses = async (page = 1) => {
         page: page,
         page_size: data.pageSize,
       };
+      const filteredData = await $api.post("/course/list", requestData);
 
-      console.log("📚 Loading courses from /course/list ...", requestData);
-      response = await $api.post("/course/list", requestData);
+      // console.log(filteredData);
+      // console.log("📚 Loading courses from /course/list ...", requestData);
+      response = filteredData;
     }
 
-    console.log("📡 API Response:", response.data);
+    // console.log("📡 API Response:", response.data);
 
+    // RESPONSE
     if (response.data.status) {
+      const filteredByCategory = filterCoursesByCategory(
+        response.data.data.data,
+      );
+      response.data.data.data = filteredByCategory;
+      // console.log(response);
+
+      // console.log({
+      //   ...response,
+      //   data: {
+      //     ...response.data,
+      //     data: { ...response.data.data, data: ["test"] },
+      //   },
+      // });
+
       // اگر سرچ داریم، ساختار پاسخ متفاوت است
       if (
         filters.search &&
@@ -686,11 +712,14 @@ const loadCourses = async (page = 1) => {
           data.totalCount / (coursesData.page_size || data.pageSize),
         );
 
-        console.log(
-          "📂 Search categories result:",
-          response.data.data.categories,
-        );
+        // console.log(
+        //   "📂 Search categories result:",
+        //   response.data.data.categories,
+        // );
       } else {
+        // console.log("two");
+        // console.log(response);
+
         // حالت معمولی: /course/list
         allCourses.value = response.data.data;
         courses.value.data = response.data.data.data;
@@ -700,19 +729,38 @@ const loadCourses = async (page = 1) => {
         data.totalCount = response.data.data.count;
         data.totalPages = Math.ceil(data.totalCount / data.pageSize);
       }
-
-      // Debug: Log first course attributes
-      if (courses.value.data.length > 0) {
-        const firstCourse = courses.value.data[0];
-        console.log("🎯 First course attributes:", firstCourse.attributes);
-      }
     }
   } catch (error) {
     console.error("❌ Error loading courses:", error);
-    $sweetalert.error("خطا در بارگذاری دوره‌ها");
+    // $sweetalert.error("خطا در بارگذاری دوره‌ها");
     courses.value.data = [];
   } finally {
     data.loaded = true;
+  }
+};
+
+const filterCoursesByCategory = (allCourses) => {
+  const currCatLevel = detectCategoryLevel();
+  const mainParentChildren = data.mainParent?.children?.map(({ id }) => id);
+  console.log(detectCategoryLevel());
+
+  if (currCatLevel === 1) {
+    // becuase of ui workflow , we return all courses here it makes only one mode which is all courses
+    return allCourses;
+  } else if (currCatLevel >= 2) {
+    if (data.allMode) {
+      const res = allCourses.filter((c) => {
+        return mainParentChildren.includes(c.category.parent);
+      });
+
+      return res;
+    } else {
+      const res = allCourses.filter((c) => {
+        return c.category.parent === data.selectedCategory;
+      });
+
+      return res;
+    }
   }
 };
 
@@ -722,18 +770,26 @@ const filterCourses = () => {
 
   // به‌روزرسانی Query آدرس بر اساس سرچ
   const query = { ...route.query };
-  if (filters.search && filters.search.trim() !== "") {
-    query.search = filters.search.trim();
-  } else {
-    delete query.search;
-  }
+  // if (filters.search && filters.search.trim() !== "") {
+  //   query.search = filters.search.trim();
+  // } else {
+  //   delete query.search;
+  // }
 
-  router.push({ path: "/courses", query });
+  query.category = data.selectedCategory;
+  filters.category = data.selectedCategory;
+
+  // router.push({ path: "/courses", query });
   loadCourses(1);
 };
 
 // Select category
 const selectCategory = (category) => {
+  if (detectCategoryLevel() === 1) {
+    data.mainParent = category;
+  }
+
+  data.allMode = detectCategoryLevel() === 1;
   data.selectedCategory = category.id;
   router.push({ path: "/courses", query: { category: category.id } });
   data.parentCategory = category.children?.length ? category : null;
@@ -743,8 +799,12 @@ const selectCategory = (category) => {
 // Compute filtered categories
 const filteredCategories = computed(() => {
   if (data.parentCategory?.children?.length) {
+    if (detectCategoryLevel() === 3) {
+      return [];
+    }
     return data.parentCategory.children;
   }
+  // third level
   return data.selectedCategory ? [] : categories.value;
 });
 
@@ -752,10 +812,31 @@ const getParentCategoryTitle = () => {
   const parentCategory = categories.value.find((category) =>
     category.children?.some((child) => child.id === data.selectedCategory),
   );
-  return parentCategory ? `بازگشت به ${parentCategory.title}` : "بازگشت";
+  return "بازگشت";
+  // return parentCategory ? `بازگشت به ${parentCategory.title}` : "بازگشت";
 };
 
-const resetCategories = () => {
+const resetCategories = (isExit) => {
+  if (isExit) {
+    // console.log(data.selectedCategory, data.parentCategory);
+    // console.log(data.mainParent);
+
+    if (detectCategoryLevel() === 2) {
+      data.selectedCategory = null;
+      data.parentCategory = null;
+      data.mainParent = {};
+      router.push({ path: "/courses" });
+      console.log("level one");
+    } else if (detectCategoryLevel() === 3) {
+      // console.log("level two", data.parentCategory);
+      // data.selectedCategory = data.mainParent.id;
+      data.parentCategory = data.mainParent;
+      router.push({ path: "/courses" });
+    }
+    filterCourses();
+    return;
+  }
+
   if (data.selectedCategory) {
     const parentCategory = categories.value.find((category) =>
       category.children?.some((child) => child.id === data.selectedCategory),
@@ -777,10 +858,36 @@ const resetCategories = () => {
   filterCourses();
 };
 
+const detectCategoryLevel = () => {
+  console.log(data.parentCategory);
+
+  if (
+    data.parentCategory &&
+    data.parentCategory.children &&
+    data.parentCategory.children.some(
+      (child) => child.children && child.children.length > 0,
+    )
+  ) {
+    // console.log("ok we're on second level right now"); // کاربر در لول دوم
+    return 2;
+  } else if (
+    data.parentCategory &&
+    data.parentCategory.children &&
+    data.parentCategory.children.length > 0
+  ) {
+    // console.log("ok we're on third level right now"); // کاربر در لول سوم
+    return 3;
+  } else {
+    return 1;
+  }
+};
+
 const resetToMainCategory = () => {
-  data.selectedCategory = null;
-  // data.parentCategory = null;
-  router.push("/courses");
+  data.allMode = true;
+  // data.selectedCategory = 0;
+  // data.selectedCategory = null;
+  //  data.parentCategory = null;
+  // router.push("/courses");
   filterCourses();
 };
 
@@ -796,6 +903,7 @@ const resetFilters = () => {
     maxPrice: "",
     languages: [],
     types: [],
+    category: null,
   });
   data.selectedCategory = null;
   data.parentCategory = null;
@@ -847,6 +955,7 @@ const getPageNumbers = () => {
 };
 
 onMounted(async () => {
+  // clearQueryParams();
   // همگام‌سازی سرچ اولیه با Query آدرس (برای سرچ از هدر)
   if (route.query.search) {
     filters.search = String(route.query.search);
@@ -856,14 +965,14 @@ onMounted(async () => {
 });
 
 // هر تغییری در Query سرچ → دوباره دوره‌ها را لود کن
-watch(
-  () => route.query.search,
-  (newSearch, oldSearch) => {
-    if (newSearch === oldSearch) return;
-    filters.search = newSearch ? String(newSearch) : "";
-    filterCourses();
-  },
-);
+// watch(
+//   () => route.query.search,
+//   (newSearch, oldSearch) => {
+//     if (newSearch === oldSearch) return;
+//     filters.search = newSearch ? String(newSearch) : "";
+//     filterCourses();
+//   },
+// );
 </script>
 
 <style scoped>
